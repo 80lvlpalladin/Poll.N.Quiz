@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="Poll.N.Quiz.Settings.Synchronizer.UnitTests" />
+
+      <PackageReference Include="JsonPatch.Net" Version="3.2.3" />
+      <PackageReference Include="MassTransit"/>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+      <PackageReference Include="Poll.N.Quiz.Settings.EventStore.ReadOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.Messaging.Contracts" />
+      <PackageReference Include="Poll.N.Quiz.Settings.Projection.ReadOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.Projection.WriteOnly" />
+    </ItemGroup>
+</Project>

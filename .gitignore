@@ -1,0 +1,12 @@
+bin/
+obj/
+artifacts/
+Debug/
+Release/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.git/
+.idea/
+*.log
+.DS_Store

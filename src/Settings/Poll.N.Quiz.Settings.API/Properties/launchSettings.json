@@ -1,0 +1,15 @@
+﻿{
+  "profiles": {
+    "Poll.N.Quiz.Settings.API": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "launchUrl": "scalar/v1",
+      "applicationUrl": "https://localhost:5128",
+      "environmentVariables": {
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "https://localhost:21003",
+        "OTEL_SERVICE_NAME": "SettingsAPI"
+      }
+    }
+  }
+}

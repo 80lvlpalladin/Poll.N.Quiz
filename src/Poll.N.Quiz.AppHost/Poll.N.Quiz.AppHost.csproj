@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0"/>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <IsAspireHost>true</IsAspireHost>
+        <UserSecretsId>e9294c22-6cde-4c21-8afa-fdc38054ef8d</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0"/>
+        <PackageReference Include="Aspire.Hosting.Kafka" />
+        <PackageReference Include="Aspire.Hosting.MongoDB" Version="8.2.2" />
+        <PackageReference Include="Aspire.Hosting.Redis" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj" />
+    </ItemGroup>
+
+</Project>

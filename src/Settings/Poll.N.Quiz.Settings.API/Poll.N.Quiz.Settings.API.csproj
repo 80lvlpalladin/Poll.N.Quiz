@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.Commands\Poll.N.Quiz.Settings.Commands.csproj" />
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.Queries\Poll.N.Quiz.Settings.Queries.csproj" />
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+      <PackageReference Include="Poll.N.Quiz.API.Shared"/>
+
+      <None Include="SettingsFiles\**" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="appsettings.json" />
+      <Content Include="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+</Project>
