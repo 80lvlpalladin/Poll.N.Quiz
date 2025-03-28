@@ -2,35 +2,12 @@
 
 ## Overview
 
-Poll.N.Quiz is a .NET solution built with modern architecture principles. The system uses .NET Aspire for distributed application hosting and integrates several key technologies including MassTransit for messaging, MongoDB for storage, and Redis for caching.
+Poll.N.Quiz - a Web API that allows to store and retrieve appsettings.json files, needed for distributed ASP.NET Core applications. Aims to make appsettings.json file management easy and centralized for distributed systems built with ASP.NET Core.
+Poll.N.Quiz is a .NET solution built with CQRS and Even Sourcing architecture principles. The system uses .NET Aspire for distributed application hosting and integrates several key technologies including MassTransit for messaging, MongoDB for event store, and Redis for read-only projection.
 
 ## Architecture
 
-The solution follows a microservices architecture with the following components:
-
-- **API Layer**: RESTful endpoints for client communication
-- **Settings Management**: Configuration system with event sourcing
-- **Event-driven Architecture**: Using MassTransit and Kafka for message queuing
-
-## Key Components
-
-### Settings Service
-
-- **Settings.API**: RESTful API for managing application settings
-- **Settings.EventQueue**: Event-based messaging for settings changes
-- **Settings.EventStore**: Event sourcing for settings
-- **Settings.Projection**: Read models for settings data
-- **Settings.FileStore**: File-based storage for settings
-- **Settings.Synchronizer**: Keeps settings systems in sync
-
-### Infrastructure
-
-- **.NET Aspire**: Used for distributed application hosting
-- **Scalar**: OpenAPI documentation
-- **MassTransit**: Service bus implementation
-- **MongoDB**: Document database storage
-- **Redis**: Distributed caching
-- **Kafka**: Event streaming platform
+//TODO
 
 ## API Endpoints
 
