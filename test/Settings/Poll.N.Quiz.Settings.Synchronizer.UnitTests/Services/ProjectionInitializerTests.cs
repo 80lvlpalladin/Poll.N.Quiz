@@ -6,7 +6,7 @@ using Poll.N.Quiz.Settings.Synchronizer.Services;
 
 namespace Poll.N.Quiz.Settings.Synchronizer.UnitTests.Services;
 
-public class ProjectionUpdaterTests
+public class ProjectionInitializerTests
 {
     [Test]
     [Arguments("service1", "environment1")]
@@ -20,7 +20,7 @@ public class ProjectionUpdaterTests
         readOnlySettingsEventStoreMock
             .Setup(es => es.GetAllEventsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(TestSettingsEventFactory.CreateSettingsEvents().ToArray);
-        var projectionUpdater = new ProjectionUpdater
+        var projectionUpdater = new ProjectionInitializer
             (readOnlySettingsEventStoreMock.Object, writeOnlyProjectionMock.Object);
         var expectedProjectionString =
             TestSettingsEventFactory.GetExpectedResultSettings(expectedServiceName, expectedEnvironmentName);
@@ -31,7 +31,7 @@ public class ProjectionUpdaterTests
                 .OrderBy(se => se.TimeStamp).Last().TimeStamp;
 
         //Act
-        await projectionUpdater.InitializeProjectionAsync(CancellationToken.None);
+        await projectionUpdater.ExecuteAsync(CancellationToken.None);
 
         //Assert
         writeOnlyProjectionMock.Verify(wp => wp.SaveProjectionAsync(

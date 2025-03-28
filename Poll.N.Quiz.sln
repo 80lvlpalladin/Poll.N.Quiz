@@ -3,9 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.AppHost", "src\Poll.N.Quiz.AppHost\Poll.N.Quiz.AppHost.csproj", "{BF9B8B9D-C3EA-4217-AC9C-0F37C377F710}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{803FA018-D769-4C57-88B8-FCEA2F47F630}"
-	ProjectSection(SolutionItems) = preProject
-		src\Directory.Packages.props = src\Directory.Packages.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A99484B2-23C1-41EB-A170-B96521801EF8}"
 	ProjectSection(SolutionItems) = preProject

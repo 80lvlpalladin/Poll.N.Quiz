@@ -2,15 +2,16 @@ using System.Text.Json;
 using ErrorOr;
 using FluentValidation;
 using Json.Patch;
-using MassTransit;
 using MediatR;
+using Poll.N.Quiz.Settings.Domain.ValueObjects;
+using Poll.N.Quiz.Settings.EventQueue;
 using Poll.N.Quiz.Settings.EventStore.WriteOnly;
-using Poll.N.Quiz.Settings.Messaging.Contracts;
 
 namespace Poll.N.Quiz.Settings.Commands.Handlers;
 
 public sealed record UpdateSettingsCommand(
     uint TimeStamp,
+    uint Version,
     string ServiceName,
     string EnvironmentName,
     string SettingsPatchJson)
@@ -18,7 +19,7 @@ public sealed record UpdateSettingsCommand(
 
 public class UpdateSettingsHandler(
     IWriteOnlySettingsEventStore settingsEventStore,
-    IPublishEndpoint publishEndpoint)
+    SettingsEventQueueProducer queueProducer)
     : IRequestHandler<UpdateSettingsCommand, ErrorOr<Success>>
 {
     private readonly UpdateSettingsCommandValidator _validator = new();
@@ -32,9 +33,11 @@ public class UpdateSettingsHandler(
 
         var settingsUpdateEvent = new SettingsEvent(
             SettingsEventType.UpdateEvent,
+            new SettingsMetadata(
+                request.ServiceName,
+                request.EnvironmentName),
             request.TimeStamp,
-            request.ServiceName,
-            request.EnvironmentName,
+            request.Version,
             request.SettingsPatchJson);
 
         var result = await settingsEventStore.SaveAsync(settingsUpdateEvent, cancellationToken);
@@ -42,7 +45,7 @@ public class UpdateSettingsHandler(
         if(!result)
             return Error.Failure($"Failed to save Settings{Enum.GetName(settingsUpdateEvent.EventType)}");
 
-        await publishEndpoint.Publish(settingsUpdateEvent, cancellationToken);
+        await queueProducer.SendAsync(settingsUpdateEvent, cancellationToken);
 
         return Result.Success;
     }
@@ -53,6 +56,7 @@ public class UpdateSettingsHandler(
         public UpdateSettingsCommandValidator()
         {
             RuleFor(x => x.ServiceName).NotEmpty();
+            RuleFor(x => x.Version).GreaterThan((uint) 0);
             RuleFor(x => x.EnvironmentName).NotEmpty();
             RuleFor(x => x.SettingsPatchJson).NotEmpty();
             RuleFor(x => x.SettingsPatchJson)

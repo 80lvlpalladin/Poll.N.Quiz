@@ -9,8 +9,7 @@
       <ProjectReference Include="..\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
       <PackageReference Include="Poll.N.Quiz.API.Shared"/>
-
-      <None Include="SettingsFiles\**" CopyToOutputDirectory="Always" />
+      <PackageReference Include="Poll.N.Quiz.Aspire"/>
     </ItemGroup>
 
     <ItemGroup>

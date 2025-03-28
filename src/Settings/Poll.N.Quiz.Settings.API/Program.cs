@@ -1,36 +1,58 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Poll.N.Quiz.Settings.Queries;
 using Poll.N.Quiz.API.Shared;
-using Poll.N.Quiz.API.Shared.ExceptionHandlers;
+using Poll.N.Quiz.Settings.Queries;
 using Poll.N.Quiz.API.Shared.Extensions;
+using Poll.N.Quiz.Aspire;
 using Poll.N.Quiz.Settings.API;
 using Poll.N.Quiz.Settings.Commands;
+using Poll.N.Quiz.Settings.EventQueue;
 using Poll.N.Quiz.Settings.Synchronizer;
-using Poll.N.Quiz.Settings.Synchronizer.Services;
+using Poll.N.Quiz.Settings.Synchronizer.Consumers;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions{ Args = args });
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables();
 
 builder
-    .AddConcurrencyRateLimiter(concurrentRequestsLimit: 10)
-    .Configuration
-        .AddJsonFile("appsettings.json");
+    .AddConcurrencyRateLimiter()
+    .AddTelemetry();
 
-var configuration = builder.Configuration;
+var settingsEventQueueConnectionString =
+    builder.Configuration.GetSettingsEventQueueConnectionString();
+var settingsProjectionConnectionString =
+    builder.Configuration.GetSettingsProjectionConnectionString();
+var settingsEventStoreConnectionString =
+    builder.Configuration.GetSettingsEventStoreConnectionString();
+
+var settingsEventQueueTopicName =
+    builder.Configuration.GetSection("SettingsEventQueueTopicName").Get<string>();
+
+if(string.IsNullOrWhiteSpace(settingsEventQueueTopicName))
+    throw new ConfigurationException("SettingsEventQueueTopicName");
 
 builder.Services
-    .AddSingleton<CurrentEnvironment>()
     .AddExceptionHandler<GlobalExceptionHandler>()
-    .AddQueryServices(configuration)
-    .AddCommandServices()
-    .AddSynchronizerServices(configuration)
+    .AddSettingsEventQueueProducerAndConsumer<SettingsEventQueueConsumer>(
+        settingsEventQueueConnectionString,
+        settingsEventQueueTopicName)
+    .AddQueryServices(settingsProjectionConnectionString)
+    .AddCommandServices(
+        builder.Configuration,
+        settingsEventStoreConnectionString,
+        settingsEventQueueConnectionString)
+    .AddSynchronizerServices(
+        builder.Configuration,
+        settingsProjectionConnectionString,
+        settingsEventStoreConnectionString)
     .AddOpenApi();
 
 var app = builder.Build();
-
-await InitializeSettingsProjectionAsync(app.Services);
 
 app.MapOpenApi();
 
@@ -41,13 +63,4 @@ app.MapEndpoints();
 app.UseHttpsRedirection();
 
 app.Run();
-
-return;
-
-async Task InitializeSettingsProjectionAsync
-    (IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
-{
-    var projectionUpdater = serviceProvider.GetRequiredService<ProjectionUpdater>();
-    await projectionUpdater.InitializeProjectionAsync(cancellationToken);
-}
 

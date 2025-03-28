@@ -8,9 +8,9 @@ namespace Poll.N.Quiz.Settings.Queries;
 public static class ServiceRegistrant
 {
     public static IServiceCollection AddQueryServices
-        (this IServiceCollection services, IConfiguration configuration) =>
+        (this IServiceCollection services, string settingsProjectionConnectionString) =>
         services
-            .AddReadOnlySettingsProjection(configuration)
+            .AddReadOnlySettingsProjection(settingsProjectionConnectionString)
             .AddQueryHandlers();
 
     private static IServiceCollection AddQueryHandlers(this IServiceCollection services)

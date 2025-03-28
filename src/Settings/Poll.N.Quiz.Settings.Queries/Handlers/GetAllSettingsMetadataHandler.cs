@@ -1,7 +1,7 @@
 using ErrorOr;
 using MediatR;
+using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.Projection.ReadOnly;
-using Poll.N.Quiz.Settings.Projection.ReadOnly.Entities;
 
 namespace Poll.N.Quiz.Settings.Queries.Handlers;
 
@@ -24,6 +24,16 @@ public class GetAllSettingsMetadataHandler(IReadOnlySettingsProjection projectio
         return CreateResponse(settingsMetadata);
     }
 
-    private static GetAllSettingsMetadataResponse CreateResponse(IReadOnlyCollection<SettingsMetadata> domainEntities) =>
-        new(domainEntities.Select(de => new SettingsMetadataResponse(de.ServiceName, de.EnvironmentNames)));
+    private static GetAllSettingsMetadataResponse CreateResponse
+        (IReadOnlyCollection<SettingsMetadata> domainEntities)
+    {
+        var settingsMetadataResponses = domainEntities
+            .GroupBy(entity => entity.ServiceName)
+            .Select(group =>
+                new SettingsMetadataResponse(
+                    group.Key,
+                    group.Select(metadata => metadata.EnvironmentName)));
+
+        return new GetAllSettingsMetadataResponse(settingsMetadataResponses);
+    }
 }

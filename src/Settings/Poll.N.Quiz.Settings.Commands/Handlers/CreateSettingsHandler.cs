@@ -1,15 +1,16 @@
 using System.Text.Json;
 using ErrorOr;
 using FluentValidation;
-using MassTransit;
 using MediatR;
+using Poll.N.Quiz.Settings.Domain.ValueObjects;
+using Poll.N.Quiz.Settings.EventQueue;
 using Poll.N.Quiz.Settings.EventStore.WriteOnly;
-using Poll.N.Quiz.Settings.Messaging.Contracts;
 
 namespace Poll.N.Quiz.Settings.Commands.Handlers;
 
 public sealed record CreateSettingsCommand(
     uint TimeStamp,
+    uint Version,
     string ServiceName,
     string EnvironmentName,
     string SettingsJson)
@@ -17,7 +18,7 @@ public sealed record CreateSettingsCommand(
 
 public class CreateSettingsHandler(
     IWriteOnlySettingsEventStore settingsEventStore,
-    IPublishEndpoint publishEndpoint)
+    SettingsEventQueueProducer queueProducer)
     : IRequestHandler<CreateSettingsCommand, ErrorOr<Success>>
 {
     private readonly CreateSettingsCommandValidator _validator = new();
@@ -28,12 +29,15 @@ public class CreateSettingsHandler(
         // ReSharper disable once MethodHasAsyncOverloadWithCancellation
         if(_validator.Validate(request) is { IsValid : false } validationResult)
             return Error.Validation(validationResult.ToString());
+        const uint settingsCreateEventVersion = 0;
 
         var settingsCreateEvent = new SettingsEvent(
             SettingsEventType.CreateEvent,
+            new SettingsMetadata(
+                request.ServiceName,
+                request.EnvironmentName),
             request.TimeStamp,
-            request.ServiceName,
-            request.EnvironmentName,
+            settingsCreateEventVersion,
             request.SettingsJson);
 
         var result = await settingsEventStore.SaveAsync(settingsCreateEvent, cancellationToken);
@@ -41,7 +45,7 @@ public class CreateSettingsHandler(
         if(!result)
             return Error.Failure($"Failed to save Settings{Enum.GetName(settingsCreateEvent.EventType)}");
 
-        await publishEndpoint.Publish(settingsCreateEvent, cancellationToken);
+        await queueProducer.SendAsync(settingsCreateEvent, cancellationToken);
 
         return Result.Success;
     }
@@ -54,6 +58,7 @@ public class CreateSettingsHandler(
             RuleFor(x => x.ServiceName).NotEmpty();
             RuleFor(x => x.EnvironmentName).NotEmpty();
             RuleFor(x => x.SettingsJson).NotEmpty();
+            RuleFor(x => x.Version).Equal((uint) 0);
             RuleFor(x => x.SettingsJson)
                 .Must(x =>
                 {

@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0"/>
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0"/>
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0"/>
-        <PackageReference Include="Aspire.Hosting.Kafka" />
-        <PackageReference Include="Aspire.Hosting.MongoDB" Version="8.2.2" />
-        <PackageReference Include="Aspire.Hosting.Redis" />
-    </ItemGroup>
+      <PackageReference Include="Aspire.Hosting.AppHost" />
+      <PackageReference Include="Aspire.Hosting.Kafka" />
+      <PackageReference Include="Aspire.Hosting.MongoDB" />
+      <PackageReference Include="Aspire.Hosting.Redis" />
+      <PackageReference Include="Poll.N.Quiz.Aspire" />
+      <PackageReference Include="Poll.N.Quiz.Settings.FileStore.ReadOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.Domain" />
 
-    <ItemGroup>
-      <ProjectReference Include="..\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj" />
+      <ProjectReference Include="..\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj" IsAspireProjectResource="true" />
     </ItemGroup>
-
 </Project>
