@@ -8,18 +8,18 @@
     <PackageVersion Include="Aspire.Hosting.MongoDB" Version="9.1.0" />
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.1.0" />
     <PackageVersion Include="MassTransit" Version="8.4.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.EventQueue" Version="0.0.0.34-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.EventStore.WriteOnly" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.Domain" Version="0.0.0.34-dev" />
-    <PackageVersion Include="Poll.N.Quiz.API.Shared" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.FileStore.ReadOnly" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.Projection.ReadOnly" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.EventStore.ReadOnly" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Settings.Projection.WriteOnly" Version="0.0.0.33-dev" />
-    <PackageVersion Include="Poll.N.Quiz.Aspire" Version="0.0.0.32-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.EventQueue" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.EventStore.WriteOnly" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.Domain" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.API.Shared" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.FileStore.ReadOnly" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.ProjectionStore.ReadOnly" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.EventStore.ReadOnly" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Settings.ProjectionStore.WriteOnly" Version="0.0.0.45-dev" />
+    <PackageVersion Include="Poll.N.Quiz.Aspire" Version="0.0.0.45-dev" />
     <PackageVersion Include="JsonPatch.Net" Version="3.3.0" />
     <PackageVersion Include="ErrorOr" Version="2.0.1" />
     <PackageVersion Include="MediatR" Version="12.4.1" />

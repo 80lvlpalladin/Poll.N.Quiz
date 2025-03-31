@@ -11,7 +11,7 @@
       <PackageReference Include="Poll.N.Quiz.Settings.EventQueue" />
       <PackageReference Include="Poll.N.Quiz.Settings.EventStore.ReadOnly" />
       <PackageReference Include="Poll.N.Quiz.Settings.EventStore.WriteOnly"/>
-      <PackageReference Include="Poll.N.Quiz.Settings.Projection.ReadOnly" />
-      <PackageReference Include="Poll.N.Quiz.Settings.Projection.WriteOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.ProjectionStore.ReadOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.ProjectionStore.WriteOnly" />
     </ItemGroup>
 </Project>

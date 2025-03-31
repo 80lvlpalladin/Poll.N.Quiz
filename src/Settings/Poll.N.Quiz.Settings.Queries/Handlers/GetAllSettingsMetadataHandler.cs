@@ -1,7 +1,7 @@
 using ErrorOr;
 using MediatR;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
-using Poll.N.Quiz.Settings.Projection.ReadOnly;
+using Poll.N.Quiz.Settings.ProjectionStore.ReadOnly;
 
 namespace Poll.N.Quiz.Settings.Queries.Handlers;
 
@@ -9,7 +9,7 @@ public record GetAllSettingsMetadataQuery() : IRequest<ErrorOr<GetAllSettingsMet
 public record GetAllSettingsMetadataResponse(IEnumerable<SettingsMetadataResponse> Metadata);
 public record SettingsMetadataResponse(string ServiceName, IEnumerable<string> EnvironmentNames);
 
-public class GetAllSettingsMetadataHandler(IReadOnlySettingsProjection projection) :
+public class GetAllSettingsMetadataHandler(IReadOnlySettingsProjectionStore projection) :
     IRequestHandler<GetAllSettingsMetadataQuery, ErrorOr<GetAllSettingsMetadataResponse>>
 {
     public async Task<ErrorOr<GetAllSettingsMetadataResponse>> Handle

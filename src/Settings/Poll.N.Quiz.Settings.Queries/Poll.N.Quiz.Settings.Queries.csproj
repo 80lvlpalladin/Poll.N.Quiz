@@ -3,7 +3,7 @@
     <ItemGroup>
       <PackageReference Include="ErrorOr"/>
       <PackageReference Include="MediatR" />
-      <PackageReference Include="Poll.N.Quiz.Settings.Projection.ReadOnly" />
+      <PackageReference Include="Poll.N.Quiz.Settings.ProjectionStore.ReadOnly" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
     </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using MediatR;
 using Poll.N.Quiz.Settings.Domain;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.EventStore.ReadOnly;
-using Poll.N.Quiz.Settings.Projection.WriteOnly;
+using Poll.N.Quiz.Settings.ProjectionStore.WriteOnly;
 
 namespace Poll.N.Quiz.Settings.Synchronizer.Handlers;
 
@@ -13,7 +13,7 @@ public record ReloadProjectionRequest(string ServiceName, string EnvironmentName
 //TODO cover with tests
 public class ReloadProjectionHandler(
     IReadOnlySettingsEventStore readOnlySettingsEventStore,
-    IWriteOnlySettingsProjection writeOnlySettingsProjection)
+    IWriteOnlySettingsProjectionStore writeOnlySettingsProjectionStore)
     : IRequestHandler<ReloadProjectionRequest, ErrorOr<Success>>
 {
     public async Task<ErrorOr<Success>> Handle(ReloadProjectionRequest request, CancellationToken cancellationToken)
@@ -23,21 +23,21 @@ public class ReloadProjectionHandler(
         var allEvents =
             await readOnlySettingsEventStore.GetAsync(settingsMetadata, cancellationToken);
 
-        var settingsCreateEvent =
-            allEvents.Single(e => e.EventType == SettingsEventType.CreateEvent);
-
-        var settingsAggregate = new SettingsAggregate(settingsCreateEvent);
-
-        foreach (var @event in allEvents.Skip(1))
+        if (allEvents.Length is 0)
         {
-            var applyResult = settingsAggregate.ApplyEvent(@event);
-
-            if (applyResult.IsError)
-                return applyResult;
+            return Error.NotFound("No settings found for the given service and environment");
         }
 
-        await writeOnlySettingsProjection.SaveProjectionAsync(
-            settingsAggregate.CurrentProjection,
+        var settingsAggregate = new SettingsAggregate(settingsMetadata);
+
+        foreach (var @event in allEvents)
+        {
+            if(!settingsAggregate.TryApplyEvent(@event, out var applyEventError))
+                return applyEventError.Value;
+        }
+
+        await writeOnlySettingsProjectionStore.SaveProjectionAsync(
+            settingsAggregate.CurrentProjection!,
             settingsAggregate.Metadata,
             cancellationToken);
 

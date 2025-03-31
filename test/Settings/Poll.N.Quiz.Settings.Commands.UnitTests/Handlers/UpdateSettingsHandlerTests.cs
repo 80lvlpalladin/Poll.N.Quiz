@@ -1,10 +1,12 @@
+
 using ErrorOr;
 using MassTransit;
 using Moq;
 using Poll.N.Quiz.Settings.Commands.Handlers;
+using Poll.N.Quiz.Settings.Domain.Internal;
+using Poll.N.Quiz.Settings.Domain.ValueObjects;
+using Poll.N.Quiz.Settings.EventQueue;
 using Poll.N.Quiz.Settings.EventStore.WriteOnly;
-using Poll.N.Quiz.Settings.Messaging.Contracts;
-using Poll.N.Quiz.Settings.Messaging.Contracts.Internal;
 
 namespace Poll.N.Quiz.Settings.Commands.UnitTests.Handlers;
 
@@ -15,7 +17,8 @@ public class UpdateSettingsHandlerTests
     {
         // Arrange
         var eventStoreMock = new Mock<IWriteOnlySettingsEventStore>(MockBehavior.Strict);
-        var publishEndpointMock = new Mock<IPublishEndpoint>(MockBehavior.Strict);
+        var topicProducerMock = new Mock<ITopicProducer<SettingsEvent>>(MockBehavior.Strict);
+        var settingsEventQueueProducer = new SettingsEventQueueProducer(topicProducerMock.Object);
 
         var expectedSettingsUpdateEvent = TestSettingsEventFactory
             .CreateSettingsEvents().First(se => se.EventType is SettingsEventType.UpdateEvent);
@@ -24,13 +27,13 @@ public class UpdateSettingsHandlerTests
             .Setup(x => x.SaveAsync(
                 It.Is<SettingsEvent>(sce => sce.Equals(expectedSettingsUpdateEvent)), CancellationToken.None))
             .ReturnsAsync(true);
-        publishEndpointMock
-            .Setup(x => x.Publish(
+        topicProducerMock
+            .Setup(x => x.Produce(
                 It.Is<SettingsEvent>(sce => sce.Equals(expectedSettingsUpdateEvent)), CancellationToken.None))
             .Returns(Task.CompletedTask);
 
         var command = CreateCommandFrom(expectedSettingsUpdateEvent);
-        var handler = new UpdateSettingsHandler(eventStoreMock.Object, publishEndpointMock.Object);
+        var handler = new UpdateSettingsHandler(eventStoreMock.Object, settingsEventQueueProducer);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -38,15 +41,16 @@ public class UpdateSettingsHandlerTests
         // Assert
         await Assert.That(result.IsError).IsFalse();
         eventStoreMock.Verify(x => x.SaveAsync(expectedSettingsUpdateEvent, CancellationToken.None), Times.Once);
-        publishEndpointMock.Verify(x => x.Publish(expectedSettingsUpdateEvent, CancellationToken.None), Times.Once);
+        topicProducerMock.Verify(x => x.Produce(expectedSettingsUpdateEvent, CancellationToken.None), Times.Once);
     }
 
     [Test]
-    public async Task HandleAsync_ShouldReturnError_WhenEventStoreFailsToSaveEvent()
+    public async Task HandleAsync_ShouldReturnFailureError_WhenEventStoreFailsToSaveEvent()
     {
         // Arrange
         var eventStoreMock = new Mock<IWriteOnlySettingsEventStore>(MockBehavior.Strict);
-        var publishEndpointMock = new Mock<IPublishEndpoint>(MockBehavior.Strict);
+        var topicProducerMock = new Mock<ITopicProducer<SettingsEvent>>(MockBehavior.Strict);
+        var settingsEventQueueProducer = new SettingsEventQueueProducer(topicProducerMock.Object);
 
         var expectedSettingsUpdateEvent = TestSettingsEventFactory
             .CreateSettingsEvents().First(se => se.EventType is SettingsEventType.UpdateEvent);
@@ -57,15 +61,16 @@ public class UpdateSettingsHandlerTests
             .ReturnsAsync(false);
 
         var command = CreateCommandFrom(expectedSettingsUpdateEvent);
-        var handler = new UpdateSettingsHandler(eventStoreMock.Object, publishEndpointMock.Object);
+        var handler = new UpdateSettingsHandler(eventStoreMock.Object, settingsEventQueueProducer);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         await Assert.That(result.IsError).IsTrue();
+        await Assert.That(result.FirstError.Type).IsEqualTo(ErrorType.Failure);
         eventStoreMock.Verify(x => x.SaveAsync(expectedSettingsUpdateEvent, CancellationToken.None), Times.Once);
-        publishEndpointMock.Verify(x => x.Publish(expectedSettingsUpdateEvent, CancellationToken.None), Times.Never);
+        topicProducerMock.Verify(x => x.Produce(expectedSettingsUpdateEvent, CancellationToken.None), Times.Never);
     }
 
     [Test]
@@ -77,8 +82,9 @@ public class UpdateSettingsHandlerTests
     {
         // Arrange
         var eventStoreMock = new Mock<IWriteOnlySettingsEventStore>(MockBehavior.Loose);
-        var publishEndpointMock = new Mock<IPublishEndpoint>(MockBehavior.Loose);
-        var handler = new UpdateSettingsHandler(eventStoreMock.Object, publishEndpointMock.Object);
+        var topicProducerMock = new Mock<ITopicProducer<SettingsEvent>>(MockBehavior.Strict);
+        var settingsEventQueueProducer = new SettingsEventQueueProducer(topicProducerMock.Object);
+        var handler = new UpdateSettingsHandler(eventStoreMock.Object, settingsEventQueueProducer);
         var command = CreateCommandFrom(invalidSettingsEvent);
 
         // Act
@@ -89,14 +95,15 @@ public class UpdateSettingsHandlerTests
         await Assert.That(result.FirstError.Type).IsEqualTo(ErrorType.Validation);
         eventStoreMock.Verify(x =>
             x.SaveAsync(invalidSettingsEvent, CancellationToken.None), Times.Never);
-        publishEndpointMock.Verify(x =>
-            x.Publish(invalidSettingsEvent, CancellationToken.None), Times.Never);
+        topicProducerMock.Verify(x =>
+            x.Produce(invalidSettingsEvent, CancellationToken.None), Times.Never);
     }
 
     private static UpdateSettingsCommand CreateCommandFrom(SettingsEvent @event) =>
         new(@event.TimeStamp,
-            @event.ServiceName,
-            @event.EnvironmentName,
+            @event.Version,
+            @event.Metadata.ServiceName,
+            @event.Metadata.EnvironmentName,
             @event.JsonData);
 }
 
@@ -106,37 +113,31 @@ public static class UpdateSettingsHandlerTestDataSource
     {
         yield return () => new SettingsEvent(
             SettingsEventType.UpdateEvent,
-            10,
-            "service1",
-            "environment1",
+            new SettingsMetadata("settings1", "environment1"),
+            0,
+            0,
             "dsfdsfdsfdsfds");
 
         yield return () => new SettingsEvent(
             SettingsEventType.UpdateEvent,
-            10,
-            "service1",
-            "environment1",
+            new SettingsMetadata("settings1", string.Empty),
+            0,
+            0,
             "{\"key\": \"value\"}");
 
         yield return () => new SettingsEvent(
             SettingsEventType.UpdateEvent,
-            10,
-            "service1",
-            string.Empty,
+            new SettingsMetadata(string.Empty, "environment1"),
+            0,
+            0,
             "{\"key\": \"value\"}");
 
         yield return () => new SettingsEvent(
             SettingsEventType.UpdateEvent,
-            10,
-            string.Empty,
-            "environment1",
-            "{\"key\": \"value\"}");
-
-        yield return () => new SettingsEvent(
-            SettingsEventType.UpdateEvent,
-            10,
-            "service1",
-            "environment1",
+            new SettingsMetadata("settings1", "environment1"),
+            0,
+            0,
             string.Empty);
     }
 }
+
