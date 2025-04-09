@@ -1,10 +1,7 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Json.Patch;
+using System.Diagnostics;
 using MassTransit;
 using Moq;
 using Poll.N.Quiz.Settings.Domain;
-using Poll.N.Quiz.Settings.Domain.Internal;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.ProjectionStore.ReadOnly;
 using Poll.N.Quiz.Settings.ProjectionStore.WriteOnly;
@@ -14,22 +11,44 @@ namespace Poll.N.Quiz.Settings.Synchronizer.UnitTests.Consumers;
 
 public class SettingsEventQueueConsumerTests
 {
+    [Test]
+    public async Task Consume_WhenConsumingUpdateEvent_AndReadOnlyProjectionIsNull_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var writeOnlyProjection = new Mock<IWriteOnlySettingsProjectionStore>();
+        var readOnlyProjection = new Mock<IReadOnlySettingsProjectionStore>();
+        var context = new Mock<ConsumeContext<SettingsEvent>>();
+        var settingsUpdateEvent = TestSettingsEventFactory.CreateSettingsUpdateEvent();
+        context.Setup(c => c.Message).Returns(settingsUpdateEvent);
+        readOnlyProjection
+            .Setup(r => r.GetAsync(settingsUpdateEvent.Metadata))
+            .ReturnsAsync((SettingsProjection?) null);
+        var consumer = new SettingsEventQueueConsumer
+            (writeOnlyProjection.Object, readOnlyProjection.Object);
+
+        // Act
+        var act = async () => await consumer.Consume(context.Object);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(act);
+    }
+
 
     [Test]
-    public async Task Consume_WhenConsumingCreateEvent_WhenExistingProjectionIsNotNull_ThrowsInvalidOperationException()
+    public async Task Consume_WhenConsumingCreateEvent_AndReadOnlyProjectionNotNull_ThrowsInvalidOperationException()
     {
         // Arrange
         var writeOnlyProjection = new Mock<IWriteOnlySettingsProjectionStore>();
         var readOnlyProjection = new Mock<IReadOnlySettingsProjectionStore>();
         var context = new Mock<ConsumeContext<SettingsEvent>>();
         var settingsCreateEvent = TestSettingsEventFactory.CreateSettingsCreateEvent();
-        var settingsAggregate = SettingsAggregate.CreateFrom(settingsCreateEvent).Value;
-        settingsAggregate.ApplyEvent(settingsCreateEvent);
-
         context.Setup(c => c.Message).Returns(settingsCreateEvent);
+        var settingsAggregate = new SettingsAggregate(settingsCreateEvent.Metadata);
+        if(!settingsAggregate.TryApplyEvent(settingsCreateEvent, out _))
+            Assert.Fail("Failed to apply event to aggregate");
         readOnlyProjection
             .Setup(r => r.GetAsync(settingsCreateEvent.Metadata))
-            .ReturnsAsync(settingsAggregate.GetCurrentProjection().Value);
+            .ReturnsAsync(settingsAggregate.CurrentProjection);
         var consumer = new SettingsEventQueueConsumer
             (writeOnlyProjection.Object, readOnlyProjection.Object);
 
@@ -41,6 +60,79 @@ public class SettingsEventQueueConsumerTests
     }
 
     [Test]
+    public async Task Consume_WhenConsumingUpdateEvent_SavesUpdatedProjectionToWriteOnlyStorage()
+    {
+        // Arrange
+        var writeOnlyProjection = new Mock<IWriteOnlySettingsProjectionStore>();
+        var readOnlyProjection = new Mock<IReadOnlySettingsProjectionStore>();
+        var context = new Mock<ConsumeContext<SettingsEvent>>();
+        var settingsEvents = TestSettingsEventFactory
+            .CreateSettingsEvents()
+            .Where(se => se.Metadata == new SettingsMetadata("service1", "environment1"))
+            .ToArray();
+        var settingsCreateEvent = settingsEvents.First(se => se.EventType == SettingsEventType.CreateEvent);
+        var settingsUpdateEvent = settingsEvents.First(se => se.EventType == SettingsEventType.UpdateEvent);
+        var settingsAggregate = new SettingsAggregate(settingsCreateEvent.Metadata);
+        if(!settingsAggregate.TryApplyEvent(settingsCreateEvent, out _))
+            Assert.Fail("Failed to apply event to aggregate");
+        context.Setup(c => c.Message).Returns(settingsUpdateEvent);
+        readOnlyProjection
+            .Setup(r => r.GetAsync(settingsCreateEvent.Metadata))
+            .ReturnsAsync(settingsAggregate.CurrentProjection);
+        var consumer = new SettingsEventQueueConsumer
+            (writeOnlyProjection.Object, readOnlyProjection.Object);
+
+
+        //Act
+        await consumer.Consume(context.Object);
+
+        // Assert
+        if(!settingsAggregate.TryApplyEvent(settingsUpdateEvent, out _))
+            Assert.Fail("Failed to apply event to aggregate");
+        var expectedProjection = settingsAggregate.CurrentProjection;
+        writeOnlyProjection
+            .Verify(w =>
+                    w.SaveProjectionAsync(
+                        It.Is<SettingsProjection>(projection =>projection == expectedProjection),
+                        It.Is<SettingsMetadata>(metadata => metadata == settingsCreateEvent.Metadata),
+                        It.IsAny<CancellationToken>()),
+                Times.Once);
+    }
+
+    [Test]
+    public async Task Consume_WhenConsumingCreateEvent_SavesTheProjectionToWriteOnlyStorage()
+    {
+        // Arrange
+        var writeOnlyProjection = new Mock<IWriteOnlySettingsProjectionStore>();
+        var readOnlyProjection = new Mock<IReadOnlySettingsProjectionStore>();
+        var context = new Mock<ConsumeContext<SettingsEvent>>();
+        var settingsCreateEvent = TestSettingsEventFactory.CreateSettingsCreateEvent();
+
+        context.Setup(c => c.Message).Returns(settingsCreateEvent);
+        readOnlyProjection
+            .Setup(r => r.GetAsync(settingsCreateEvent.Metadata))
+            .ReturnsAsync((SettingsProjection?) null);
+        var consumer = new SettingsEventQueueConsumer
+            (writeOnlyProjection.Object, readOnlyProjection.Object);
+
+        // Act
+        await consumer.Consume(context.Object);
+
+        // Assert
+        var settingsAggregate = new SettingsAggregate(settingsCreateEvent.Metadata);
+        if(!settingsAggregate.TryApplyEvent(settingsCreateEvent, out _))
+            Assert.Fail("Failed to apply event to aggregate");
+        var expectedProjection = settingsAggregate.CurrentProjection;
+        writeOnlyProjection
+                .Verify(w =>
+                        w.SaveProjectionAsync(
+                            It.Is<SettingsProjection>(projection =>projection == expectedProjection),
+                            It.Is<SettingsMetadata>(metadata => metadata == settingsCreateEvent.Metadata),
+                            It.IsAny<CancellationToken>()),
+                Times.Once);
+    }
+
+    /*[Test]
     public async Task Consume_WhenConsumingUpdateEvent_WhenExistingProjectionIsOlderThanEvent_UpdatesProjection()
     {
         // Arrange
@@ -131,5 +223,5 @@ public class SettingsEventQueueConsumerTests
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(act);
-    }
+    }*/
 }

@@ -10,7 +10,6 @@ namespace Poll.N.Quiz.Settings.Synchronizer.Handlers;
 public record ReloadProjectionRequest(string ServiceName, string EnvironmentName)
     : IRequest<ErrorOr<Success>>;
 
-//TODO cover with tests
 public class ReloadProjectionHandler(
     IReadOnlySettingsEventStore readOnlySettingsEventStore,
     IWriteOnlySettingsProjectionStore writeOnlySettingsProjectionStore)
@@ -35,6 +34,7 @@ public class ReloadProjectionHandler(
             if(!settingsAggregate.TryApplyEvent(@event, out var applyEventError))
                 return applyEventError.Value;
         }
+
 
         await writeOnlySettingsProjectionStore.SaveProjectionAsync(
             settingsAggregate.CurrentProjection!,

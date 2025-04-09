@@ -2,7 +2,7 @@ using ErrorOr;
 using MassTransit;
 using Moq;
 using Poll.N.Quiz.Settings.Commands.Handlers;
-using Poll.N.Quiz.Settings.Domain.Internal;
+using Poll.N.Quiz.Settings.Domain;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.EventQueue;
 using Poll.N.Quiz.Settings.EventStore.WriteOnly;
