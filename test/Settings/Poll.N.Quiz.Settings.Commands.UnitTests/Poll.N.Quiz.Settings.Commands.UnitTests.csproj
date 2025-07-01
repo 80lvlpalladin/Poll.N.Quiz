@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-      <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.Commands\Poll.N.Quiz.Settings.Commands.csproj" />
+      <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API.Commands\Poll.N.Quiz.Settings.API.Commands.csproj" />
     </ItemGroup>
 </Project>

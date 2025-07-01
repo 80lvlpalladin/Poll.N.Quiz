@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Settings", "Settings", "{5D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.API", "src\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj", "{70CB258A-F18E-4C90-BE24-41452EF478C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.Commands", "src\Settings\Poll.N.Quiz.Settings.Commands\Poll.N.Quiz.Settings.Commands.csproj", "{D3F887AB-8A7D-4454-9921-D102152BFDD5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.API.Commands", "src\Settings\Poll.N.Quiz.Settings.API.Commands\Poll.N.Quiz.Settings.API.Commands.csproj", "{D3F887AB-8A7D-4454-9921-D102152BFDD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.Queries", "src\Settings\Poll.N.Quiz.Settings.Queries\Poll.N.Quiz.Settings.Queries.csproj", "{F8637F50-9EF4-4A72-BA6E-E6F6E7936726}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.API.Queries", "src\Settings\Poll.N.Quiz.Settings.API.Queries\Poll.N.Quiz.Settings.API.Queries.csproj", "{F8637F50-9EF4-4A72-BA6E-E6F6E7936726}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.Synchronizer", "src\Settings\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj", "{7A3FD775-297E-4B8F-B0D5-1C9C55E40B83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.API.Synchronizer", "src\Settings\Poll.N.Quiz.Settings.API.Synchronizer\Poll.N.Quiz.Settings.API.Synchronizer.csproj", "{7A3FD775-297E-4B8F-B0D5-1C9C55E40B83}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Settings", "Settings", "{3635E281-7D2E-4D9A-9441-BA8B0EB848E5}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.Synchronizer.UnitTests", "test\Settings\Poll.N.Quiz.Settings.Synchronizer.UnitTests\Poll.N.Quiz.Settings.Synchronizer.UnitTests.csproj", "{743C8519-F014-4A5A-8DA5-72DB22D6F35D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.ArchitectureTests", "test\Settings\Poll.N.Quiz.Settings.ArchitectureTests\Poll.N.Quiz.Settings.ArchitectureTests.csproj", "{70B1B1D5-06D0-4977-AF69-C53FBD68A807}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poll.N.Quiz.Settings.Web", "src\Settings\Poll.N.Quiz.Settings.Web\Poll.N.Quiz.Settings.Web.csproj", "{5593EE9A-8B7D-4988-8605-9C728FB1AE02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{70B1B1D5-06D0-4977-AF69-C53FBD68A807}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70B1B1D5-06D0-4977-AF69-C53FBD68A807}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70B1B1D5-06D0-4977-AF69-C53FBD68A807}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5593EE9A-8B7D-4988-8605-9C728FB1AE02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5593EE9A-8B7D-4988-8605-9C728FB1AE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5593EE9A-8B7D-4988-8605-9C728FB1AE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5593EE9A-8B7D-4988-8605-9C728FB1AE02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BF9B8B9D-C3EA-4217-AC9C-0F37C377F710} = {803FA018-D769-4C57-88B8-FCEA2F47F630}
@@ -77,5 +83,6 @@ Global
 		{12EA6BF9-BB17-41C9-9588-79AEA991CF29} = {3635E281-7D2E-4D9A-9441-BA8B0EB848E5}
 		{743C8519-F014-4A5A-8DA5-72DB22D6F35D} = {3635E281-7D2E-4D9A-9441-BA8B0EB848E5}
 		{70B1B1D5-06D0-4977-AF69-C53FBD68A807} = {3635E281-7D2E-4D9A-9441-BA8B0EB848E5}
+		{5593EE9A-8B7D-4988-8605-9C728FB1AE02} = {5D44F929-1F68-419B-80D9-80BE90A24847}
 	EndGlobalSection
 EndGlobal

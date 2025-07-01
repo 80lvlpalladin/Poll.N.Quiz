@@ -4,7 +4,7 @@ using Poll.N.Quiz.Settings.Domain;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.EventStore.ReadOnly;
 using Poll.N.Quiz.Settings.ProjectionStore.WriteOnly;
-using Poll.N.Quiz.Settings.Synchronizer.Handlers;
+using Poll.N.Quiz.Settings.API.Synchronizer.Handlers;
 
 namespace Poll.N.Quiz.Settings.Synchronizer.UnitTests.Handlers;
 

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Poll.N.Quiz.Settings.Queries.Handlers;
+using Poll.N.Quiz.Settings.API.Queries.Handlers;
 using Poll.N.Quiz.API.Shared.Extensions;
-using Poll.N.Quiz.Settings.Commands.Handlers;
-using Poll.N.Quiz.Settings.Synchronizer.Handlers;
+using Poll.N.Quiz.Settings.API.Commands.Handlers;
+using Poll.N.Quiz.Settings.API.Synchronizer.Handlers;
 
 namespace Poll.N.Quiz.Settings.API;
 
@@ -26,8 +26,19 @@ public static class Endpoints
 
         routeGroupBuilder.MapPost("", CreateSettingsAsync);
         routeGroupBuilder.MapPatch("", UpdateSettingsAsync);
+        routeGroupBuilder.MapGet("/{serviceName}/{environmentName}", GetSettingsContentAsync);
 
         return routeBuilder;
+    }
+
+    private static Task<IResult> GetSettingsContentAsync(
+        IMediator mediator,
+        string serviceName,
+        string environmentName,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSettingsContentQuery(serviceName, environmentName);
+        return mediator.SendAndReturnResultAsync(query, cancellationToken);
     }
 
     private static Task<IResult> ReloadProjectionAsync(
@@ -48,7 +59,7 @@ public static class Endpoints
 
     private static Task<IResult> CreateSettingsAsync(
         IMediator mediator,
-        [FromBody] CreateOrUpdateSettingsWebRequest request,
+        [FromBody] CreateSettingsWebRequest request,
         CancellationToken cancellationToken = default)
     {
         var command = new CreateSettingsCommand(
@@ -56,14 +67,14 @@ public static class Endpoints
             request.Version,
             request.ServiceName,
             request.EnvironmentName,
-            request.JsonData);
+            request.SettingsJson);
 
         return mediator.SendAndReturnResultAsync(command, cancellationToken);
     }
 
     private static Task<IResult> UpdateSettingsAsync(
         IMediator mediator,
-        [FromBody] CreateOrUpdateSettingsWebRequest request,
+        [FromBody] UpdateSettingsWebRequest request,
         CancellationToken cancellationToken = default)
     {
         var command = new UpdateSettingsCommand(
@@ -71,19 +82,30 @@ public static class Endpoints
             request.Version,
             request.ServiceName,
             request.EnvironmentName,
-            request.JsonData);
+            request.SettingsPatchJson);
 
         return mediator.SendAndReturnResultAsync(command, cancellationToken);
     }
 
-    private sealed record CreateOrUpdateSettingsWebRequest(
+    private sealed record CreateSettingsWebRequest(
         uint TimeStamp,
         uint Version,
         string ServiceName,
         string EnvironmentName,
-        string JsonData);
+        string SettingsJson);
+
+    private sealed record UpdateSettingsWebRequest(
+        uint TimeStamp,
+        uint Version,
+        string ServiceName,
+        string EnvironmentName,
+        string SettingsPatchJson);
 
     private sealed record ReloadProjectionWebRequest(
+        string ServiceName,
+        string EnvironmentName);
+
+    private sealed record GetSettingsContentWebRequest(
         string ServiceName,
         string EnvironmentName);
 }

@@ -1,26 +1,33 @@
-
 using Microsoft.Extensions.DependencyInjection;
 using Poll.N.Quiz.AppHost;
+using Poll.N.Quiz.Clients;
+using Poll.N.Quiz.ServiceDiscovery;
 using Poll.N.Quiz.Settings.FileStore.ReadOnly;
+using Refit;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var eventStore = builder
-    .AddMongoDB(Poll.N.Quiz.Aspire.ResourceNames.SettingsEventStore)
+    .AddMongoDB(nameof(AspireResource.SettingsEventStore))
     .WithLifetime(ContainerLifetime.Session);
 
 var projection = builder
-    .AddRedis(Poll.N.Quiz.Aspire.ResourceNames.SettingsProjection)
+    .AddRedis(nameof(AspireResource.SettingsProjectionStore))
     .WithLifetime(ContainerLifetime.Session);
 
 var eventQueue = builder
-    .AddKafka(Poll.N.Quiz.Aspire.ResourceNames.SettingsEventQueue)
+    .AddKafka(nameof(AspireResource.SettingsEventQueue))
     .WithLifetime(ContainerLifetime.Session)
     .WithKafkaUI()
     .WithLifetime(ContainerLifetime.Session);
 
+
+//TODO fix the endpoint for this resource not showing up in Aspire Dashboard
 var settingsApi = builder
-    .AddProject<Projects.Poll_N_Quiz_Settings_API>(Poll.N.Quiz.Aspire.ResourceNames.SettingsApi)
+    .AddProject<Projects.Poll_N_Quiz_Settings_API>(nameof(AspireResource.SettingsApi))
+    .WithEnvironment(
+        name: "ASPNETCORE_URLS",
+        value: ConnectionStringResolver.GetHardcodedConnectionString(AspireResource.SettingsApi))
     .WithReference(eventStore)
     .WaitFor(eventStore)
     .WithReference(projection)
@@ -28,28 +35,33 @@ var settingsApi = builder
     .WithReference(eventQueue)
     .WaitFor(eventQueue);
 
+var settingsWeb = builder
+    .AddProject<Projects.Poll_N_Quiz_Settings_Web>(nameof(AspireResource.SettingsWeb))
+    .WithReference(settingsApi)
+    .WaitFor(settingsApi);
+
+//For CORS configuration. without it, backend will not accept requests from settings web client
+settingsApi
+    .WithReference(settingsWeb);
+
 builder.Services
     .AddReadOnlySettingsFileStore(Path.Combine(Environment.CurrentDirectory, "SettingsFiles"))
-    .AddSingleton<SettingsEventStoreInitializer>();
+    .AddRefitClient<ISettingsApiClient>()
+    .ConfigureHttpClient(client =>
+        client.BaseAddress = new Uri(ConnectionStringResolver.GetHardcodedConnectionString(AspireResource.SettingsApi)))
+    .AddStandardResilienceHandler();
+
+builder.Services.AddSingleton<SettingsEventStoreInitializer>();
 
 builder.Eventing.Subscribe<ResourceReadyEvent>(
     settingsApi.Resource,
-    async (@event, cancellationToken) =>
+    static (@event, cancellationToken) =>
     {
-        Console.WriteLine("ResourceReadyEvent");
+        var settingsEventStoreInitializer =
+            @event.Services.GetRequiredService<SettingsEventStoreInitializer>();
 
-        var settingsApiBaseAddress = @event.Resource.Annotations
-                    .OfType<EndpointAnnotation>()
-                    .Single()
-                    .AllocatedEndpoint
-                    ?.UriString ??
-                        throw new InvalidOperationException($"{Poll.N.Quiz.Aspire.ResourceNames.SettingsApi} Resource Endpoint not found");
-
-        var settingsStoreIntializer =
-            builder.Services.BuildServiceProvider().GetRequiredService<SettingsEventStoreInitializer>();
-
-        await settingsStoreIntializer.ExecuteAsync(settingsApiBaseAddress, cancellationToken);
+        return settingsEventStoreInitializer.ExecuteAsync(cancellationToken);
     });
 
-
 builder.Build().Run();
+

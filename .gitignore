@@ -10,3 +10,4 @@ riderModule.iml
 .idea/
 *.log
 .DS_Store
+*.DotSettings.user

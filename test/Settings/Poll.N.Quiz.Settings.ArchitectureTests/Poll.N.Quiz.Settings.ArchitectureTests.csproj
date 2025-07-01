@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj" />
-    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.Commands\Poll.N.Quiz.Settings.Commands.csproj" />
-    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.Queries\Poll.N.Quiz.Settings.Queries.csproj" />
-    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj" />
+    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API.Commands\Poll.N.Quiz.Settings.API.Commands.csproj" />
+    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API.Queries\Poll.N.Quiz.Settings.API.Queries.csproj" />
+    <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API.Synchronizer\Poll.N.Quiz.Settings.API.Synchronizer.csproj" />
   </ItemGroup>
 </Project>

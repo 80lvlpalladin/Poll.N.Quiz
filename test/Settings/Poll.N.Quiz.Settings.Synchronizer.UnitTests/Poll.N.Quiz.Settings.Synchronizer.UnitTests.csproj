@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-      <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj" />
+      <ProjectReference Include="..\..\..\src\Settings\Poll.N.Quiz.Settings.API.Synchronizer\Poll.N.Quiz.Settings.API.Synchronizer.csproj" />
     </ItemGroup>
 </Project>

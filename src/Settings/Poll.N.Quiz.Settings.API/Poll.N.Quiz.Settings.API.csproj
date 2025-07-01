@@ -4,16 +4,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Poll.N.Quiz.Settings.Commands\Poll.N.Quiz.Settings.Commands.csproj" />
-      <ProjectReference Include="..\Poll.N.Quiz.Settings.Queries\Poll.N.Quiz.Settings.Queries.csproj" />
-      <ProjectReference Include="..\Poll.N.Quiz.Settings.Synchronizer\Poll.N.Quiz.Settings.Synchronizer.csproj" />
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.API.Commands\Poll.N.Quiz.Settings.API.Commands.csproj" />
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.API.Queries\Poll.N.Quiz.Settings.API.Queries.csproj" />
+      <ProjectReference Include="..\Poll.N.Quiz.Settings.API.Synchronizer\Poll.N.Quiz.Settings.API.Synchronizer.csproj" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
       <PackageReference Include="Poll.N.Quiz.API.Shared"/>
-      <PackageReference Include="Poll.N.Quiz.Aspire"/>
-    </ItemGroup>
+      <PackageReference Include="Poll.N.Quiz.ServiceDiscovery"/>
 
-    <ItemGroup>
-      <None Remove="appsettings.json" />
       <Content Include="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>

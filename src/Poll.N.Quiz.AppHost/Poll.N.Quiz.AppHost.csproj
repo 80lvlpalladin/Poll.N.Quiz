@@ -12,10 +12,15 @@
       <PackageReference Include="Aspire.Hosting.Kafka" />
       <PackageReference Include="Aspire.Hosting.MongoDB" />
       <PackageReference Include="Aspire.Hosting.Redis" />
-      <PackageReference Include="Poll.N.Quiz.Aspire" />
+      <PackageReference Include="Aspire4Wasm" />
+      <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+      <PackageReference Include="Poll.N.Quiz.Clients" />
+      <PackageReference Include="Poll.N.Quiz.ServiceDiscovery" />
       <PackageReference Include="Poll.N.Quiz.Settings.FileStore.ReadOnly" />
       <PackageReference Include="Poll.N.Quiz.Settings.Domain" />
+      <PackageReference Include="Refit.HttpClientFactory" />
 
       <ProjectReference Include="..\Settings\Poll.N.Quiz.Settings.API\Poll.N.Quiz.Settings.API.csproj" IsAspireProjectResource="true" />
+      <ProjectReference Include="..\Settings\Poll.N.Quiz.Settings.Web\Poll.N.Quiz.Settings.Web.csproj" IsAspireProjectResource="true" />
     </ItemGroup>
 </Project>

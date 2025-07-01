@@ -1,45 +1,45 @@
 using System.Net.Http.Json;
+using Poll.N.Quiz.Clients;
+using Poll.N.Quiz.Clients.Payloads;
+using Poll.N.Quiz.ServiceDiscovery;
 using Poll.N.Quiz.Settings.FileStore.ReadOnly;
 
 namespace Poll.N.Quiz.AppHost;
 
 public class SettingsEventStoreInitializer(
-    IReadOnlySettingsFileStore readOnlySettingsFileStore)
+    IReadOnlySettingsFileStore readOnlySettingsFileStore,
+    ISettingsApiClient settingsApiClient)
 {
+
     private const string CreateSettingsEndpoint = "api/v1/settings";
-    public async Task ExecuteAsync(
-        string settingsApiBaseAddress,
-        CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
         var storedSettingsMetadata =
             readOnlySettingsFileStore.GetAllSettingsMetadata(cancellationToken);
-        using var httpClient = new HttpClient();
-
-        httpClient.BaseAddress = new Uri(settingsApiBaseAddress);
 
         foreach (var metadata in storedSettingsMetadata)
         {
             var settingsFileContent =
                 await readOnlySettingsFileStore.GetSettingsContentAsync(metadata, cancellationToken);
 
-            var webRequestBody = new CreateOrUpdateSettingsWebRequest(
+            var webRequestBody = new CreateSettingsRequest(
                 Convert.ToUInt32(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
                 0,
                 metadata.ServiceName,
                 metadata.EnvironmentName,
                 settingsFileContent);
 
-            var response = await httpClient.PostAsJsonAsync
-                (CreateSettingsEndpoint, webRequestBody, cancellationToken);
-
-            response.EnsureSuccessStatusCode();
+            Console.WriteLine("Starting request to create or update settings for " +
+                              $"{metadata.ServiceName} in {metadata.EnvironmentName} environment");
+            try
+            {
+                await settingsApiClient.CreateSettingsAsync(webRequestBody);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
-
-    private sealed record CreateOrUpdateSettingsWebRequest(
-        uint TimeStamp,
-        uint Version,
-        string ServiceName,
-        string EnvironmentName,
-        string JsonData);
 }

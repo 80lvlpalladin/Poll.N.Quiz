@@ -5,12 +5,13 @@ using Poll.N.Quiz.Settings.Domain;
 using Poll.N.Quiz.Settings.Domain.ValueObjects;
 using Poll.N.Quiz.Settings.ProjectionStore.ReadOnly;
 using Poll.N.Quiz.Settings.ProjectionStore.WriteOnly;
-using Poll.N.Quiz.Settings.Synchronizer.Consumers;
+using Poll.N.Quiz.Settings.API.Synchronizer.Consumers;
 
 namespace Poll.N.Quiz.Settings.Synchronizer.UnitTests.Consumers;
 
 public class SettingsEventQueueConsumerTests
 {
+
     [Test]
     public async Task Consume_WhenConsumingUpdateEvent_AndReadOnlyProjectionIsNull_ThrowsInvalidOperationException()
     {

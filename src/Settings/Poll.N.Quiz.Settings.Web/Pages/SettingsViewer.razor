@@ -1,0 +1,72 @@
+@inherits LayoutComponentBase
+@using Poll.N.Quiz.Settings.Web.Models
+@using Poll.N.Quiz.Settings.Web.Services
+@using Environment = Poll.N.Quiz.Settings.Web.Models.Environment
+@inject SettingsService SettingsService
+
+<div class="d-flex">
+    <div>
+        @foreach (var service in _services)
+        {
+            <div class="service-item" @onclick="@(() => SelectService(service))"
+                 style="padding: 10px; cursor:pointer; background-color:@(_selectedService == service ? "gray" : "skyblue"); margin:5px;">
+                @service.Name
+            </div>
+        }
+    </div>
+
+    <div style="margin-left: 20px;">
+        @if (_selectedService != null)
+        {
+            <div style="display:flex;">
+                @foreach (var environment in _selectedService.Environments)
+                {
+                    <div class="environment-tab" @onclick="@(() => SelectEnvironment(_selectedService, environment))"
+                         style="padding: 10px; cursor:pointer; background-color:@(_selectedEnvironment == environment ? "lightgreen" : "lightgray"); margin:5px; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0% 100%);">
+                        @environment.Name
+                    </div>
+                }
+            </div>
+            <div style="margin-top:20px;">
+                @if (_selectedEnvironment != null)
+                {
+                    <pre>@_jsonViewerContent</pre>
+                }
+                else
+                {
+                    <p>Select an environment to view details</p>
+                }
+            </div>
+        }
+        else
+        {
+            <p>Select a service to view environments</p>
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Service> _services = [];
+    private Service? _selectedService;
+    private Environment? _selectedEnvironment;
+    private string _jsonViewerContent =
+        "Select a service and an environment to view settings";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _services = await SettingsService.GetAllMetadataAsync();
+    }
+
+    void SelectService(Service service)
+    {
+        _selectedService = service;
+        _selectedEnvironment = null;
+        _jsonViewerContent = "";
+    }
+
+    void SelectEnvironment(Service service, Environment environment)
+    {
+        _selectedEnvironment = environment;
+        _jsonViewerContent = "Viewing settings for " + service.Name + environment.Name;
+    }
+}
