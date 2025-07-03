@@ -18,6 +18,9 @@ public static class Endpoints
     {
         var routeGroupBuilder = routeBuilder.MapGroup(BaseApiUrl);
 
+        routeGroupBuilder.MapGet("/metadata/{serviceName}", GetSettingsMetadataAsync)
+            .WithDescription("Get all environments available for the specified service");
+
         routeGroupBuilder.MapGet("/metadata", GetAllSettingsMetadataAsync)
             .WithDescription("Get all services and environments available");
 
@@ -50,10 +53,20 @@ public static class Endpoints
         return mediator.SendAndReturnResultAsync(request, cancellationToken);
     }
 
-    private static Task<IResult> GetAllSettingsMetadataAsync
-        (IMediator mediator, CancellationToken cancellationToken = default)
+    private static Task<IResult> GetSettingsMetadataAsync(
+        [FromRoute] string serviceName,
+        IMediator mediator,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetAllSettingsMetadataQuery();
+        var query = new GetSettingsMetadataQuery(serviceName);
+        return mediator.SendAndReturnResultAsync(query, cancellationToken);
+    }
+
+    private static Task<IResult> GetAllSettingsMetadataAsync(
+        IMediator mediator,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetSettingsMetadataQuery();
         return mediator.SendAndReturnResultAsync(query, cancellationToken);
     }
 

@@ -1,7 +1,5 @@
-using System.Net.Http.Json;
-using Poll.N.Quiz.Clients;
-using Poll.N.Quiz.Clients.Payloads;
-using Poll.N.Quiz.ServiceDiscovery;
+using Poll.N.Quiz.Infrastructure.Clients;
+using Poll.N.Quiz.Infrastructure.Clients.Payloads;
 using Poll.N.Quiz.Settings.FileStore.ReadOnly;
 
 namespace Poll.N.Quiz.AppHost;

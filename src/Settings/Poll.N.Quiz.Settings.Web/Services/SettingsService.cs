@@ -1,5 +1,5 @@
-using Poll.N.Quiz.Clients;
-using Poll.N.Quiz.ServiceDiscovery;
+using Poll.N.Quiz.Infrastructure.Clients;
+using Poll.N.Quiz.Infrastructure.ServiceDiscovery;
 using Poll.N.Quiz.Settings.Web.Models;
 using Refit;
 
@@ -14,6 +14,13 @@ public class SettingsService(ISettingsApiClient apiClient)
         return getAllMetadataResponse.Metadata.Select(metadata => new Service(
             Name: metadata.ServiceName,
             Environments: metadata.EnvironmentNames.Select(env => new Models.Environment(env))));
+    }
+
+    public async Task<string> GetSettingsContentAsync(string serviceName, string environmentName)
+    {
+        var settingsContentResponse =
+            await apiClient.GetSettingsContentAsync(serviceName, environmentName);
+        return settingsContentResponse.JsonData;
     }
 }
 

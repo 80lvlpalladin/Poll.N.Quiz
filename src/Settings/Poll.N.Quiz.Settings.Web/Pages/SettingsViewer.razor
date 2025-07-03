@@ -21,7 +21,7 @@
             <div style="display:flex;">
                 @foreach (var environment in _selectedService.Environments)
                 {
-                    <div class="environment-tab" @onclick="@(() => SelectEnvironment(_selectedService, environment))"
+                    <div class="environment-tab" @onclick="@(async () => await SelectEnvironmentAsync(_selectedService, environment))"
                          style="padding: 10px; cursor:pointer; background-color:@(_selectedEnvironment == environment ? "lightgreen" : "lightgray"); margin:5px; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0% 100%);">
                         @environment.Name
                     </div>
@@ -30,7 +30,7 @@
             <div style="margin-top:20px;">
                 @if (_selectedEnvironment != null)
                 {
-                    <pre>@_jsonViewerContent</pre>
+                    <textarea @bind="_jsonViewerContent" style="width: 100%; height: 400px; font-family: monospace;"></textarea>
                 }
                 else
                 {
@@ -64,9 +64,20 @@
         _jsonViewerContent = "";
     }
 
-    void SelectEnvironment(Service service, Environment environment)
+    async Task SelectEnvironmentAsync(Service service, Environment environment)
     {
         _selectedEnvironment = environment;
-        _jsonViewerContent = "Viewing settings for " + service.Name + environment.Name;
+        _jsonViewerContent = "Loading...";
+        StateHasChanged();
+
+        try
+        {
+            var settingsContent = await SettingsService.GetSettingsContentAsync(service.Name, environment.Name);
+            _jsonViewerContent = settingsContent;
+        }
+        catch (Exception ex)
+        {
+            _jsonViewerContent = $"Error loading settings: {ex.Message}";
+        }
     }
 }

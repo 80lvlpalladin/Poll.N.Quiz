@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Poll.N.Quiz.API.Shared;
 using Poll.N.Quiz.Settings.API.Queries;
 using Poll.N.Quiz.API.Shared.Extensions;
-using Poll.N.Quiz.ServiceDiscovery;
+using Poll.N.Quiz.Infrastructure.ServiceDiscovery;
 using Poll.N.Quiz.Settings.API;
 using Poll.N.Quiz.Settings.API.Commands;
 using Poll.N.Quiz.Settings.EventQueue;
@@ -54,7 +54,9 @@ builder
             options.AddDefaultPolicy(policy =>
             {
                 policy
-                    .WithOrigins(ConnectionStringResolver.GetSettingsWebConnectionString())
+                    .WithOrigins(
+                        ConnectionStringResolver.GetDotNetConnectionStringFromEnvironment(
+                            AspireResource.SettingsWeb))
                     //.AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();

@@ -1,8 +1,12 @@
 {
   "Logging": {
     "LogLevel": {
-      "Default": "Information",
+      "Default": "Warning",
       "Microsoft.AspNetCore": "Warning"
     }
+  },
+  "RateLimiting" :
+  {
+    "ConcurrentRequestsLimit" : 25
   }
 }

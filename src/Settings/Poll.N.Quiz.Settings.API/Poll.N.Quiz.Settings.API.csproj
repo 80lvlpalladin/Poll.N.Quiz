@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
+      <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -9,7 +10,7 @@
       <ProjectReference Include="..\Poll.N.Quiz.Settings.API.Synchronizer\Poll.N.Quiz.Settings.API.Synchronizer.csproj" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
       <PackageReference Include="Poll.N.Quiz.API.Shared"/>
-      <PackageReference Include="Poll.N.Quiz.ServiceDiscovery"/>
+      <PackageReference Include="Poll.N.Quiz.Infrastructure.ServiceDiscovery"/>
 
       <Content Include="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

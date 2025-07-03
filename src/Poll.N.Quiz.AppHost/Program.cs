@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Poll.N.Quiz.AppHost;
-using Poll.N.Quiz.Clients;
-using Poll.N.Quiz.ServiceDiscovery;
+using Poll.N.Quiz.Infrastructure.Clients;
+using Poll.N.Quiz.Infrastructure.ServiceDiscovery;
 using Poll.N.Quiz.Settings.FileStore.ReadOnly;
 using Refit;
 
@@ -43,6 +43,13 @@ var settingsWeb = builder
 //For CORS configuration. without it, backend will not accept requests from settings web client
 settingsApi
     .WithReference(settingsWeb);
+
+var api = builder
+    .AddProject<Projects.Poll_N_Quiz_API>(nameof(AspireResource.Api)).WithEnvironment(
+        name: "ASPNETCORE_URLS",
+        value: ConnectionStringResolver.GetHardcodedConnectionString(AspireResource.Api))
+    .WithReference(settingsApi)
+    .WaitFor(settingsApi);
 
 builder.Services
     .AddReadOnlySettingsFileStore(Path.Combine(Environment.CurrentDirectory, "SettingsFiles"))
